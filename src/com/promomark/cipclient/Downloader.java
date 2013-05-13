@@ -58,7 +58,8 @@ public class Downloader {
 				File file = new File(this.fileName);
 				Log.i(DOWNLOADER, "Verifying: " + fileName);
 				if (file.exists() && file.length() > 0) {
-					// we just verify file is non-empty, we don't use HTTP HEAD to verify file is changed
+					// we just verify file is non-empty, we don't use HTTP HEAD
+					// to verify file is changed
 					// if you need another file, give it another name
 					Log.i(DOWNLOADER, "Cached file exists: " + fileName);
 					this.done = true;
@@ -76,12 +77,13 @@ public class Downloader {
 							out.write(buffer, 0, read);
 						}
 						out.close();
+						this.done = true;
 					}
 				}
 			} catch (Exception e) {
 				// broken item...
 				Log.e(DOWNLOADER, "Cannot open " + url + " : " + e.getMessage());
-				this.done = true;
+				this.done = false;
 			}
 		}
 	}

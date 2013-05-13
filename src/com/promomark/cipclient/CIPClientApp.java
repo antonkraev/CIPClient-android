@@ -26,9 +26,11 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.metaio.sdk.jni.IMetaioSDKAndroid;
+import com.promomark.cipclient.CIPClientApp.ARItem;
 import com.promomark.cipclient.Downloader.FinishListener;
 
-public class CIPClientApp extends Application implements FinishListener, LocationListener {
+public class CIPClientApp extends Application implements FinishListener,
+		LocationListener {
 
 	private static CIPClientApp theOne;
 	private Downloader downloader;
@@ -41,10 +43,6 @@ public class CIPClientApp extends Application implements FinishListener, Locatio
 	private ARItem arItem;
 
 	private static final String CIPCLIENTAPP = "CIPClient";
-
-	static {
-		IMetaioSDKAndroid.loadNativeLibs();
-	}
 
 	class AppItem {
 		int appId;
@@ -97,14 +95,12 @@ public class CIPClientApp extends Application implements FinishListener, Locatio
 		super.onCreate();
 		downloader = new Downloader(this, this);
 		eventReporter = new EventReporter();
-    	locationManager = (LocationManager) getBaseContext().getSystemService(Context.LOCATION_SERVICE);
-        Criteria fine = new Criteria();
-        fine.setAccuracy(Criteria.ACCURACY_FINE);
-    	String provider = this.locationManager.getBestProvider(fine, true);
-    	locationManager.requestLocationUpdates(provider,
-		    	        10*60*1000,   	// 10-minute interval.
-		    	        100,             // 1000 meters.
-		    	        this);
+		locationManager = (LocationManager) getBaseContext().getSystemService(
+				Context.LOCATION_SERVICE);
+		Criteria fine = new Criteria();
+		fine.setAccuracy(Criteria.ACCURACY_FINE);
+		String provider = this.locationManager.getBestProvider(fine, true);
+		locationManager.requestLocationUpdates(provider, 10 * 60 * 1000, 100, this);
 	}
 
 	public static CIPClientApp instance() {
@@ -126,12 +122,14 @@ public class CIPClientApp extends Application implements FinishListener, Locatio
 	public void displayFatalError(final String title, final String msg) {
 		current.runOnUiThread(new Runnable() {
 			public void run() {
-				new AlertDialog.Builder(CIPClientApp.this).setTitle(title).setMessage(msg)
-				.setNegativeButton("OK", new OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						current.finish();
-					}
-				}).show();
+				new AlertDialog.Builder(CIPClientApp.this).setTitle(title)
+						.setMessage(msg)
+						.setNegativeButton("OK", new OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int which) {
+								current.finish();
+							}
+						}).show();
 			}
 		});
 	}
@@ -159,7 +157,6 @@ public class CIPClientApp extends Application implements FinishListener, Locatio
 	public void parseJSON(String json) {
 		try {
 			JSONObject obj = new JSONObject(json);
-			// json: string; object; array
 			if (obj.has("status") && obj.getString("status").equals("fail")) {
 				String msg = obj.getString("msg");
 				displayFatalError("Cannot contact server",
@@ -220,13 +217,13 @@ public class CIPClientApp extends Application implements FinishListener, Locatio
 			JSONObject coupon = obj.getJSONArray("coupons").getJSONObject(0);
 			couponItem = new CouponItem();
 			couponItem.id = Integer.parseInt(coupon.getString("id"));
-			couponItem.title = coupon.getString("title");
+			couponItem.title = coupon.getString("name");
 
 			String image = coupon.getString("image");
 			arItem.displayTargetImage = Downloader.convertToLocalName(image);
 			downloader.addItem(Downloader.CATEGORY_COUPONS, image);
 
-			couponItem.text = coupon.getString("test");
+			couponItem.text = coupon.getString("text");
 			couponItem.startDate = parseDate(coupon.getString("startDate"));
 			couponItem.endDate = parseDate(coupon.getString("endDate"));
 
@@ -235,7 +232,7 @@ public class CIPClientApp extends Application implements FinishListener, Locatio
 			for (int i = 0; i < brands.length(); i++) {
 				JSONObject brand = (JSONObject) brands.get(i);
 				String brandTitle = brand.getString("name");
-				String brandLogo = brand.getString("log");
+				String brandLogo = brand.getString("logo");
 				String brandWebsite = brand.getString("website");
 				JSONArray features = brand.getJSONArray("features");
 				for (int j = 0; j < features.length(); j++) {
@@ -255,7 +252,7 @@ public class CIPClientApp extends Application implements FinishListener, Locatio
 					drinkItems.add(drinkItem);
 				}
 			}
-			
+
 			Collections.sort(drinkItems, new Comparator<DrinkItem>() {
 				public int compare(DrinkItem lhs, DrinkItem rhs) {
 					return lhs.displayOrder - rhs.displayOrder;
@@ -263,11 +260,11 @@ public class CIPClientApp extends Application implements FinishListener, Locatio
 			});
 
 			downloader.startDownloads();
-		} catch (Exception e) {
-			//TODO
-			e.printStackTrace();
-		}
 
+			// AR test
+		} catch (Exception e) {
+			Log.e(CIPCLIENTAPP, "Cannot parse json: " + e.getMessage());
+		}
 	}
 
 	@Override
@@ -278,12 +275,13 @@ public class CIPClientApp extends Application implements FinishListener, Locatio
 
 	@Override
 	public void onLocationChanged(Location location) {
-		Log.i("!!", ">" + location.getAccuracy());
 		if (location.getAccuracy() < 50) {
-			eventReporter.setLocation(location.getLatitude(), location.getLongitude());
+			locationManager.removeUpdates(this);
+			eventReporter.setLocation(location.getLatitude(),
+					location.getLongitude());
 			new Thread() {
 				public void run() {
-					getAppData();	
+					getAppData();
 				}
 			}.start();
 		}
@@ -299,5 +297,9 @@ public class CIPClientApp extends Application implements FinishListener, Locatio
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
+	}
+
+	public ARItem getARItem() {
+		return arItem;
 	}
 }

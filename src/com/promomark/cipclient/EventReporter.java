@@ -26,7 +26,7 @@ public class EventReporter {
 
 	private static final String EVENTREPORTER = "EventReporter";
 
-	public static final String API_PREFIX = "http://cip.c4platform.com/";
+	public static final String API_PREFIX = "https://cip.c4platform.com/";
 
 	public static final String AGE_VERIFICATION_PASSED = "AGE_VERIFICATION_PASSED";
 	public static final String AGE_VERIFICATION_FAILED = "AGE_VERIFICATION_FAILED";
