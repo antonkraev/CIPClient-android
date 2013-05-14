@@ -3,6 +3,11 @@ package com.promomark.cipclient;
 import java.io.File;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +15,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.metaio.sdk.MetaioDebug;
 import com.metaio.sdk.jni.IGeometry;
@@ -32,6 +39,8 @@ public class MainActivity extends MetaioSDKViewActivity implements
 	private View contestView;
 	private LayoutInflater inflater;
 	private FrameLayout main;
+	private ImageButton enter1;
+	private ImageButton enter2;
 
 	@Override
 	protected int getGUILayout() {
@@ -49,12 +58,63 @@ public class MainActivity extends MetaioSDKViewActivity implements
 		info.setOnClickListener(this);
 
 		inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		arInfoView = inflater.inflate(R.layout.view_arinfo, null);
+		initArInfoView(inflater.inflate(R.layout.view_arinfo, null));
+
 		drinksView = inflater.inflate(R.layout.view_drinks, null);
-		couponView = inflater.inflate(R.layout.view_coupon, null);
-		contestView = inflater.inflate(R.layout.view_contest, null);
+
+		initCouponView(inflater.inflate(R.layout.view_coupon, null));
+
+		initContestView(inflater.inflate(R.layout.view_contest, null));
 
 		selected(Downloader.CATEGORY_AR);
+	}
+
+	private void initArInfoView(View view) {
+		this.arInfoView = view;
+		DataObjects data = CIPClientApp.instance().getDataObjects();
+
+		TextView info = (TextView) arInfoView.findViewById(R.id.info);
+		info.setText(data.arItem.targetText);
+
+		String imgPath = getExternalFilesDir(null) + File.separator
+				+ data.arItem.displayTargetImage;
+		ImageView image = (ImageView) arInfoView.findViewById(R.id.image);
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+		Bitmap bitmap = BitmapFactory.decodeFile(imgPath, options);
+		image.setImageBitmap(bitmap);
+	}
+
+	private void initCouponView(View view) {
+		this.couponView = view;
+		DataObjects data = CIPClientApp.instance().getDataObjects();
+
+		TextView info = (TextView) couponView.findViewById(R.id.info);
+		String msg = "Closest location: " + data.appItem.closestLocation + "("
+				+ (int) (data.appItem.distToLocationInMeters / 1609.34)
+				+ " mi)";
+		info.setText(msg);
+
+		String imgPath = getExternalFilesDir(null) + File.separator
+				+ data.couponItem.image;
+		ImageView image = (ImageView) couponView.findViewById(R.id.image);
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+		Bitmap bitmap = BitmapFactory.decodeFile(imgPath, options);
+		image.setImageBitmap(bitmap);
+	}
+
+	private void initContestView(View view) {
+		this.contestView = view;
+		DataObjects data = CIPClientApp.instance().getDataObjects();
+
+		TextView info = (TextView) contestView.findViewById(R.id.text);
+		info.setText(data.appItem.contestText);
+
+		enter1 = (ImageButton) contestView.findViewById(R.id.enter1);
+		enter2 = (ImageButton) contestView.findViewById(R.id.enter2);
+		enter1.setOnClickListener(this);
+		enter2.setOnClickListener(this);
 	}
 
 	@Override
@@ -147,13 +207,36 @@ public class MainActivity extends MetaioSDKViewActivity implements
 	}
 
 	@Override
-	public void onClick(View v) {
-		if (v == info) {
+	public void onClick(View view) {
+		if (view == info) {
 			CIPClientApp
 					.instance()
 					.displayInfo(
 							"About",
-							"This Paradise road-trip powered by Promomark. Version 1.0.1\n\nDrink Responsibly.\nDrive Responsibly.\n©2013 Cheeseburger in Paradise.");
+							"This Paradise road-trip powered by Promomark. Version 1.0.1\n\n"
+									+ "Drink Responsibly.\nDrive Responsibly.\n©2013 Cheeseburger in Paradise.");
+		} else if (view == enter1 || view == enter2) {
+			CIPClientApp
+					.instance()
+					.displayOkCancel(
+							"Redirect",
+							"You will now be redirected to Cheeseburger in Paradise contest page",
+							new android.content.DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int which) {
+									CIPClientApp
+											.instance()
+											.getEventReporter()
+											.reportEvent(
+													EventReporter.CONTEST_REDIRECT,
+													(String) null);
+									String url = CIPClientApp.instance()
+											.getDataObjects().appItem.contestMobileUrl;
+
+									startActivity(new Intent(
+											Intent.ACTION_VIEW, Uri.parse(url)));
+								}
+							});
 		}
 	}
 }

@@ -124,7 +124,7 @@ public class DataObjects {
 		couponItem.title = coupon.getString("name");
 
 		String image = coupon.getString("image");
-		arItem.displayTargetImage = Downloader.convertToLocalName(image);
+		couponItem.image = Downloader.convertToLocalName(image);
 		CIPClientApp.instance().getDownloader().addItem(Downloader.CATEGORY_COUPONS, image);
 
 		couponItem.text = coupon.getString("text");

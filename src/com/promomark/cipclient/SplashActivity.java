@@ -49,7 +49,6 @@ public class SplashActivity extends Activity implements LocationListener, OnClic
 				ageView.setVisibility(View.VISIBLE);
 			} else {
 				CIPClientApp.instance().ageOk(new Date(age));
-				startActivity(new Intent(CIPClientApp.instance(), MainActivity.class));
 			}
 		}
 	}
@@ -63,19 +62,8 @@ public class SplashActivity extends Activity implements LocationListener, OnClic
 				Context.LOCATION_SERVICE);
 		final Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 		
-		if (location.getAccuracy() < ACURACY) {
-			Handler mHandler = new Handler() {
-		        @Override
-		        public void handleMessage(Message msg) {
-					try {
-						Thread.sleep(2000);
-					} catch (InterruptedException e) {
-						//ignore
-					}
-					onLocationChanged(location);
-		        }
-			};
-			mHandler.sendMessage(new Message());
+		if (location != null && location.getAccuracy() < ACURACY) {
+			onLocationChanged(location);
 		} else {
 			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 		}
@@ -109,7 +97,6 @@ public class SplashActivity extends Activity implements LocationListener, OnClic
 		if (current.after(cal)) {
 			cal.add(Calendar.YEAR, -21);
 			CIPClientApp.instance().ageOk(cal.getTime());
-			startActivity(new Intent(CIPClientApp.instance(), MainActivity.class));
 		} else {
 			cal.add(Calendar.YEAR, -21);
 			CIPClientApp.instance().ageFailed(cal.getTime());

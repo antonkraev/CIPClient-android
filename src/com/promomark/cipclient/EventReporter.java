@@ -36,7 +36,7 @@ public class EventReporter {
 	public static final String AR_ANIMATION_STARTED = "AR_ANIMATION_STARTED";
 	public static final String AR_ANIMATION_ENDED = "AR_ANIMATION_ENDED";
 	public static final String COUPON_DOWNLOADED = "COUPON_DOWNLOADED";
-	public static final String DRINK_CLICKED = "DRINK_CLICKED";
+	//public static final String DRINK_CLICKED = "DRINK_CLICKED";
 	public static final String CONTEST_REDIRECT = "CONTEST_REDIRECT";
 
 	public static final String ID = "id";
