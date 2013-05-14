@@ -15,22 +15,15 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Application;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
+import android.content.Intent;
 import android.location.LocationManager;
-import android.os.Bundle;
 import android.util.Log;
 
-import com.metaio.sdk.jni.IMetaioSDKAndroid;
-import com.promomark.cipclient.CIPClientApp.ARItem;
 import com.promomark.cipclient.Downloader.FinishListener;
 
-public class CIPClientApp extends Application implements FinishListener,
-		LocationListener {
+public class CIPClientApp extends Application implements FinishListener {
 
 	private static CIPClientApp theOne;
 	private Downloader downloader;
@@ -95,12 +88,6 @@ public class CIPClientApp extends Application implements FinishListener,
 		super.onCreate();
 		downloader = new Downloader(this, this);
 		eventReporter = new EventReporter();
-		locationManager = (LocationManager) getBaseContext().getSystemService(
-				Context.LOCATION_SERVICE);
-		Criteria fine = new Criteria();
-		fine.setAccuracy(Criteria.ACCURACY_FINE);
-		String provider = this.locationManager.getBestProvider(fine, true);
-		locationManager.requestLocationUpdates(provider, 10 * 60 * 1000, 100, this);
 	}
 
 	public static CIPClientApp instance() {
@@ -122,7 +109,7 @@ public class CIPClientApp extends Application implements FinishListener,
 	public void displayFatalError(final String title, final String msg) {
 		current.runOnUiThread(new Runnable() {
 			public void run() {
-				new AlertDialog.Builder(CIPClientApp.this).setTitle(title)
+				new AlertDialog.Builder(current).setTitle(title)
 						.setMessage(msg)
 						.setNegativeButton("OK", new OnClickListener() {
 							public void onClick(DialogInterface dialog,
@@ -273,33 +260,26 @@ public class CIPClientApp extends Application implements FinishListener,
 
 	}
 
-	@Override
-	public void onLocationChanged(Location location) {
-		if (location.getAccuracy() < 50) {
-			locationManager.removeUpdates(this);
-			eventReporter.setLocation(location.getLatitude(),
-					location.getLongitude());
-			new Thread() {
-				public void run() {
-					getAppData();
-				}
-			}.start();
-		}
-	}
-
-	@Override
-	public void onProviderDisabled(String provider) {
-	}
-
-	@Override
-	public void onProviderEnabled(String provider) {
-	}
-
-	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras) {
-	}
-
 	public ARItem getARItem() {
 		return arItem;
+	}
+
+	public void setLocation(double latitude, double longitude) {
+		eventReporter.setLocation(latitude, longitude);
+		new Thread() {
+			public void run() {
+				getAppData();
+			}
+		}.start();
+	}
+
+	public void ageOk(Date birthday) {
+        eventReporter.setAgeVerified(birthday.getTime());
+        eventReporter.reportEvent(EventReporter.AGE_VERIFICATION_PASSED, birthday);
+    }
+
+	public void ageFailed(Date birthday) {
+        eventReporter.reportEvent(EventReporter.AGE_VERIFICATION_FAILED, birthday);
+        displayFatalError("Age verification", "You must be 21+ to use this app. The application will now exit");
 	}
 }

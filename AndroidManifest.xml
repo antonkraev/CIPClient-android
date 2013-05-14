@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.promomark.cipclient"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.0.1" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -15,7 +15,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.SET_DEBUG_APP" />
     <uses-permission android:name="android.permission.INTERNET" />
-    
+
     <supports-screens android:smallScreens="false" />
 
     <application
@@ -28,11 +28,14 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.promomark.cipclient.MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name="com.promomark.cipclient.SplashActivity"
-            android:label="@string/title_activity_main" >
+            android:label="@string/title_activity_main"
+            android:noHistory="true"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

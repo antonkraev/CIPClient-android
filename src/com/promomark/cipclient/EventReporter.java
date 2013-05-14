@@ -51,15 +51,15 @@ public class EventReporter {
 	double longitude;
 	boolean couponReported = false;
 	SharedPreferences sharedPreferences;
-	boolean ageVerified = false;
+	long ageVerified = 0;
 
-	public boolean isAgeVerified() {
+	public long getAgeVerified() {
 		return ageVerified;
 	}
 
-	public void setAgeVerified(boolean ageVerified) {
-		this.ageVerified = ageVerified;
-		sharedPreferences.edit().putBoolean(AGE_VERIFIED, ageVerified).commit();
+	public void setAgeVerified(long age) {
+		this.ageVerified = age;
+		sharedPreferences.edit().putLong(AGE_VERIFIED, ageVerified).commit();
 	}
 
 	public EventReporter() {
@@ -70,7 +70,7 @@ public class EventReporter {
 			deviceID = UUID.randomUUID().toString();
 			sharedPreferences.edit().putString(ID, deviceID).commit();
 		}
-		ageVerified = sharedPreferences.getBoolean(AGE_VERIFIED, false);
+		ageVerified = sharedPreferences.getLong(AGE_VERIFIED, 0);
 		
 		deviceIP = "unknown";
 		userAgent = Build.MANUFACTURER + "/" + Build.MODEL + "/"
@@ -136,7 +136,7 @@ public class EventReporter {
 			Log.i(EVENTREPORTER, "res: " + res);
 			return res.toString();
 		} catch (Exception e) {
-			Log.e(EVENTREPORTER, "error: " + e.getMessage());
+			Log.e(EVENTREPORTER, "error " + e.getClass().getCanonicalName() + ": " + e.getMessage());
 			return null;
 		}
 	}
@@ -150,13 +150,18 @@ public class EventReporter {
 			}
 		}
 
-		Map<String, String> params = getParams();
+		final Map<String, String> params = getParams();
 		params.put("event", event);
 		if (data != null) {
 			params.put("data", data);
 		}
 
-		doGet(API_PREFIX + "reportEvent", params);
+		new Thread() {
+			public void run() {
+				doGet(API_PREFIX + "reportEvent", params);
+			}
+		}.start();
+		
 		return true;
 	}
 

@@ -10,7 +10,6 @@ import com.metaio.sdk.jni.IGeometry;
 import com.metaio.sdk.jni.IMetaioSDKCallback;
 import com.metaio.sdk.jni.Rotation;
 import com.metaio.sdk.jni.Vector3d;
-import com.metaio.tools.io.AssetsManager;
 import com.promomark.cipclient.CIPClientApp.ARItem;
 
 public class MainActivity extends MetaioSDKViewActivity {
@@ -21,11 +20,17 @@ public class MainActivity extends MetaioSDKViewActivity {
 	@Override
 	protected int getGUILayout() {
 		// Attaching layout to the activity
-		return R.layout.tutorial1;
+		return R.layout.activity_main;
 	}
 
 	public void onButtonClick(View v) {
 		finish();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		CIPClientApp.instance().setCurrentActivity(this);
 	}
 
 	@Override
