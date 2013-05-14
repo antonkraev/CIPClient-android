@@ -1,0 +1,6 @@
+BUGS:
+1) battery usage?
+2) 2-second splash delay not working...
+
+3) backgrounds aplha... (0.5 for with_brands)
+4) backgrounds scaling - move background to top level instead of subviews?

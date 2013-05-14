@@ -63,15 +63,16 @@ public class EventReporter {
 	}
 
 	public EventReporter() {
-		sharedPreferences = CIPClientApp.instance().getSharedPreferences("preferences", Context.MODE_PRIVATE);
-		
+		sharedPreferences = CIPClientApp.instance().getSharedPreferences(
+				"preferences", Context.MODE_PRIVATE);
+
 		deviceID = sharedPreferences.getString(ID, null);
 		if (deviceID == null) {
 			deviceID = UUID.randomUUID().toString();
 			sharedPreferences.edit().putString(ID, deviceID).commit();
 		}
 		ageVerified = sharedPreferences.getLong(AGE_VERIFIED, 0);
-		
+
 		deviceIP = "unknown";
 		userAgent = Build.MANUFACTURER + "/" + Build.MODEL + "/"
 				+ Build.PRODUCT + " " + Build.VERSION.SDK_INT;
@@ -109,36 +110,32 @@ public class EventReporter {
 		return params;
 	}
 
-	private String doGet(String url, Map<String, String> params) {
-		try {
-			String[] keys = params.keySet().toArray(new String[] {});
-			for (int i = 0; i < keys.length; i++) {
-				char c = (i == 0 ? '?' : '&');
-				String key = keys[i];
-				url = url + c + key + "="
-						+ URLEncoder.encode(params.get(key), "UTF-8");
-			}
-			Log.i(EVENTREPORTER, "url: " + url);
-
-			final HttpClient client = new DefaultHttpClient();
-			final HttpGet request = new HttpGet();
-			request.setURI(new URI(url));
-			final HttpResponse response = client.execute(request);
-			final BufferedReader in = new BufferedReader(new InputStreamReader(
-					response.getEntity().getContent()));
-
-			StringBuffer res = new StringBuffer();
-			String str;
-			while ((str = in.readLine()) != null) {
-				res.append(str);
-			}
-
-			Log.i(EVENTREPORTER, "res: " + res);
-			return res.toString();
-		} catch (Exception e) {
-			Log.e(EVENTREPORTER, "error " + e.getClass().getCanonicalName() + ": " + e.getMessage());
-			return null;
+	private String doGet(String url, Map<String, String> params)
+			throws Exception {
+		String[] keys = params.keySet().toArray(new String[] {});
+		for (int i = 0; i < keys.length; i++) {
+			char c = (i == 0 ? '?' : '&');
+			String key = keys[i];
+			url = url + c + key + "="
+					+ URLEncoder.encode(params.get(key), "UTF-8");
 		}
+		Log.i(EVENTREPORTER, "url: " + url);
+
+		final HttpClient client = new DefaultHttpClient();
+		final HttpGet request = new HttpGet();
+		request.setURI(new URI(url));
+		final HttpResponse response = client.execute(request);
+		final BufferedReader in = new BufferedReader(new InputStreamReader(
+				response.getEntity().getContent()));
+
+		StringBuffer res = new StringBuffer();
+		String str;
+		while ((str = in.readLine()) != null) {
+			res.append(str);
+		}
+
+		Log.i(EVENTREPORTER, "res: " + res);
+		return res.toString();
 	}
 
 	boolean reportEvent(String event, String data) {
@@ -158,10 +155,14 @@ public class EventReporter {
 
 		new Thread() {
 			public void run() {
-				doGet(API_PREFIX + "reportEvent", params);
+				try {
+					doGet(API_PREFIX + "reportEvent", params);
+				} catch (Exception e) {
+					Log.e(EVENTREPORTER, "error " + e.getClass().getCanonicalName() + ": " + e.getMessage());
+				}
 			}
 		}.start();
-		
+
 		return true;
 	}
 
@@ -170,7 +171,7 @@ public class EventReporter {
 				.toString());
 	}
 
-	String getAppData() {
+	String getAppData() throws Exception {
 		return doGet(API_PREFIX + "getappdata", getParams());
 	}
 }

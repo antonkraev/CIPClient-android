@@ -33,7 +33,7 @@
         </activity>
         <activity
             android:name="com.promomark.cipclient.SplashActivity"
-            android:label="@string/title_activity_main"
+            android:label="CIP"
             android:noHistory="true"
             android:screenOrientation="portrait" >
             <intent-filter>

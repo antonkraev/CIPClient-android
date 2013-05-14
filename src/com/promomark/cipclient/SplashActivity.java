@@ -6,11 +6,12 @@ import java.util.Date;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -22,23 +23,17 @@ public class SplashActivity extends Activity implements LocationListener, OnClic
 	private LocationManager locationManager;
 	private DatePicker date;
 	private View ageView;
+	private static final float ACURACY = 100f;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		locationManager = (LocationManager) getBaseContext().getSystemService(
-				Context.LOCATION_SERVICE);
-		Criteria fine = new Criteria();
-		fine.setAccuracy(Criteria.ACCURACY_FINE);
-		String provider = this.locationManager.getBestProvider(fine, true);
-		locationManager.requestLocationUpdates(provider, 10 * 60 * 1000, 100, this);
-
 		setContentView(R.layout.activity_splash);
 	}
 
 	@Override
 	public void onLocationChanged(Location location) {
-		if (location.getAccuracy() < 50) {
+		if (location.getAccuracy() < ACURACY) {
 			locationManager.removeUpdates(this);
 			
 			CIPClientApp.instance().setLocation(location.getLatitude(), location.getLongitude());
@@ -63,6 +58,27 @@ public class SplashActivity extends Activity implements LocationListener, OnClic
 	protected void onResume() {
 		super.onResume();
 		CIPClientApp.instance().setCurrentActivity(this);
+		
+		locationManager = (LocationManager) getBaseContext().getSystemService(
+				Context.LOCATION_SERVICE);
+		final Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		
+		if (location.getAccuracy() < ACURACY) {
+			Handler mHandler = new Handler() {
+		        @Override
+		        public void handleMessage(Message msg) {
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e) {
+						//ignore
+					}
+					onLocationChanged(location);
+		        }
+			};
+			mHandler.sendMessage(new Message());
+		} else {
+			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+		}
 	}
 
 	@Override
