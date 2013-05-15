@@ -1,6 +1,3 @@
-HIGH:
-1) start/stop AR properly (remove ghosting when stopped)
-
 LOW:
 2) tab is not preserved on suspend/resume
 3) too many "animation started" events

@@ -13,7 +13,6 @@
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:background="@null"
-        android:scaleType="fitXY"
         android:src="@drawable/enter_to_win_button1" />
 
     <TextView
@@ -36,7 +35,6 @@
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:background="@null"
-        android:scaleType="fitXY"
         android:src="@drawable/enter_to_win_button2" />
 
 </RelativeLayout>

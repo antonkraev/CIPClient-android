@@ -105,10 +105,13 @@ public class MainActivity extends MetaioSDKViewActivity implements
 		Bitmap res = BitmapFactory.decodeFile(imgPath, options);	    
 	    
     	float density = getResources().getDisplayMetrics().density;
-	    if (scale && density != 2.0) {
+    	boolean isCoupon = filename.contains("coupon");
+    	float sourceDensityX = isCoupon? 1.7f: 2.0f;
+    	float sourceDensityY = isCoupon? 1.9f: 2.0f;
+	    if (scale && density != sourceDensityX) {
 	    	//2.0 is the density of our stock images
-	    	int imageWidth = (int) (res.getWidth() * density / 2.0);
-	    	int imageHeight = (int) (res.getHeight() * density / 2.0);
+	    	int imageWidth = (int) (res.getWidth() * density / sourceDensityX);
+	    	int imageHeight = (int) (res.getHeight() * density / sourceDensityY);
 	    	res = Bitmap.createScaledBitmap(res, imageWidth, imageHeight, false);
 	    }
 	    

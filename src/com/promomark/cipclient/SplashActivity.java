@@ -15,29 +15,35 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.TextView;
 
-public class SplashActivity extends Activity implements LocationListener, OnClickListener {
+public class SplashActivity extends Activity implements LocationListener,
+		OnClickListener {
 
 	private LocationManager locationManager;
 	private DatePicker date;
 	private View ageView;
 	private static final float ACURACY = 100f;
+	private boolean locationObtained;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_splash);
+		locationObtained = false;
 	}
 
 	@Override
 	public void onLocationChanged(Location location) {
-		if (location.getAccuracy() < ACURACY) {
+		if (location.getAccuracy() <= ACURACY) {
+			locationObtained = true;
 			locationManager.removeUpdates(this);
-			
-			CIPClientApp.instance().setLocation(location.getLatitude(), location.getLongitude());
+
+			CIPClientApp.instance().setLocation(location.getLatitude(),
+					location.getLongitude());
 			TextView status = (TextView) findViewById(R.id.status);
 			status.setVisibility(View.GONE);
-			
-			long age = CIPClientApp.instance().getEventReporter().getAgeVerified();
+
+			long age = CIPClientApp.instance().getEventReporter()
+					.getAgeVerified();
 			if (age == 0) {
 				date = (DatePicker) findViewById(R.id.date);
 				Button enter = (Button) findViewById(R.id.enter);
@@ -54,15 +60,36 @@ public class SplashActivity extends Activity implements LocationListener, OnClic
 	protected void onResume() {
 		super.onResume();
 		CIPClientApp.instance().setCurrentActivity(this);
-		
-		locationManager = (LocationManager) getBaseContext().getSystemService(
-				Context.LOCATION_SERVICE);
-		final Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		
-		if (location != null && location.getAccuracy() < ACURACY) {
-			onLocationChanged(location);
-		} else {
-			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+
+		if (!locationObtained) {
+			locationManager = (LocationManager) getBaseContext()
+					.getSystemService(Context.LOCATION_SERVICE);
+			final Location location = locationManager
+					.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+			if (location != null && location.getAccuracy() < ACURACY) {
+				onLocationChanged(location);
+			} else {
+				locationManager.requestLocationUpdates(
+						LocationManager.GPS_PROVIDER, 0, 0, this);
+				new Thread() {
+					public void run() {
+						try {
+							Thread.sleep(60000);
+						} catch (InterruptedException e) {
+							// ignore
+						}
+
+						if (!locationObtained) {
+							CIPClientApp
+									.instance()
+									.displayFatalError(
+											"Location",
+											"Cannot obtain your location. Please enable location services.\n\nThe application will now exit");
+						}
+					}
+				}.start();
+			}
 		}
 	}
 
@@ -81,16 +108,16 @@ public class SplashActivity extends Activity implements LocationListener, OnClic
 	@Override
 	public void onClick(View v) {
 		ageView.setVisibility(View.GONE);
-		
+
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.YEAR, date.getYear());
 		cal.set(Calendar.MONTH, date.getMonth());
 		cal.set(Calendar.DAY_OF_MONTH, date.getDayOfMonth());
 		cal.add(Calendar.YEAR, 21);
-		
+
 		Calendar current = Calendar.getInstance();
 		current.setTime(new Date());
-		
+
 		if (current.after(cal)) {
 			cal.add(Calendar.YEAR, -21);
 			CIPClientApp.instance().ageOk(cal.getTime());
@@ -99,5 +126,5 @@ public class SplashActivity extends Activity implements LocationListener, OnClic
 			CIPClientApp.instance().ageFailed(cal.getTime());
 		}
 	}
-	
+
 }
