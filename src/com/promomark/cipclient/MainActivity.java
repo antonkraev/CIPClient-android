@@ -1,21 +1,25 @@
 package com.promomark.cipclient;
 
 import java.io.File;
+import java.util.List;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.metaio.sdk.MetaioDebug;
@@ -26,6 +30,8 @@ import com.metaio.sdk.jni.TrackingValues;
 import com.metaio.sdk.jni.TrackingValuesVector;
 import com.metaio.sdk.jni.Vector3d;
 import com.promomark.cipclient.DataObjects.ARItem;
+import com.promomark.cipclient.DataObjects.AppItem;
+import com.promomark.cipclient.DataObjects.DrinkItem;
 
 public class MainActivity extends MetaioSDKViewActivity implements
 		ButtonBar.OnSelectionChanged, OnClickListener {
@@ -41,6 +47,10 @@ public class MainActivity extends MetaioSDKViewActivity implements
 	private FrameLayout main;
 	private ImageButton enter1;
 	private ImageButton enter2;
+	private ImageButton arImage;
+	private boolean arActive = false;
+	private ImageButton couponImage;
+	private static final int AR_VIEW = -1;
 
 	@Override
 	protected int getGUILayout() {
@@ -59,11 +69,8 @@ public class MainActivity extends MetaioSDKViewActivity implements
 
 		inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		initArInfoView(inflater.inflate(R.layout.view_arinfo, null));
-
-		drinksView = inflater.inflate(R.layout.view_drinks, null);
-
+		initDrinksView(inflater.inflate(R.layout.view_drinks, null));
 		initCouponView(inflater.inflate(R.layout.view_coupon, null));
-
 		initContestView(inflater.inflate(R.layout.view_contest, null));
 
 		selected(Downloader.CATEGORY_AR);
@@ -71,37 +78,49 @@ public class MainActivity extends MetaioSDKViewActivity implements
 
 	private void initArInfoView(View view) {
 		this.arInfoView = view;
+
+		Drawable backgroundimage = view.getBackground();
+		backgroundimage.setAlpha(127);
+
 		DataObjects data = CIPClientApp.instance().getDataObjects();
 
 		TextView info = (TextView) arInfoView.findViewById(R.id.info);
 		info.setText(data.arItem.targetText);
 
-		String imgPath = getExternalFilesDir(null) + File.separator
-				+ data.arItem.displayTargetImage;
-		ImageView image = (ImageView) arInfoView.findViewById(R.id.image);
+		arImage = (ImageButton) arInfoView.findViewById(R.id.image);
+		arImage.setImageBitmap(getCachedBitmap(data.arItem.displayTargetImage));
+		arImage.setOnClickListener(this);
+	}
+
+	private Bitmap getCachedBitmap(String filename) {
+		String imgPath = getExternalFilesDir(null) + File.separator + filename;
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-		Bitmap bitmap = BitmapFactory.decodeFile(imgPath, options);
-		image.setImageBitmap(bitmap);
+		return BitmapFactory.decodeFile(imgPath, options);
+	}
+
+	private void initDrinksView(View view) {
+		this.drinksView = view;
+		ListView list = (ListView) view.findViewById(R.id.list);
+		list.setAdapter(new DrinkAdapter(this, CIPClientApp.instance()
+				.getDataObjects().drinkItems));
+
+		Drawable backgroundimage = view.getBackground();
+		backgroundimage.setAlpha(127);
 	}
 
 	private void initCouponView(View view) {
 		this.couponView = view;
 		DataObjects data = CIPClientApp.instance().getDataObjects();
 
-		TextView info = (TextView) couponView.findViewById(R.id.info);
-		String msg = "Closest location: " + data.appItem.closestLocation + "("
-				+ (int) (data.appItem.distToLocationInMeters / 1609.34)
-				+ " mi)";
-		info.setText(msg);
-
 		String imgPath = getExternalFilesDir(null) + File.separator
 				+ data.couponItem.image;
-		ImageView image = (ImageView) couponView.findViewById(R.id.image);
+		couponImage = (ImageButton) couponView.findViewById(R.id.image);
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 		Bitmap bitmap = BitmapFactory.decodeFile(imgPath, options);
-		image.setImageBitmap(bitmap);
+		couponImage.setImageBitmap(bitmap);
+		couponImage.setOnClickListener(this);
 	}
 
 	private void initContestView(View view) {
@@ -160,6 +179,12 @@ public class MainActivity extends MetaioSDKViewActivity implements
 						final TrackingValues v = trackingValues.get(i);
 
 						if (v.getCoordinateSystemID() == 1) {
+							CIPClientApp
+									.instance()
+									.getEventReporter()
+									.reportEvent(
+											EventReporter.AR_ANIMATION_STARTED,
+											(String) null);
 							mModel.startAnimation(mModel.getAnimationNames()
 									.get(0), true);
 						}
@@ -173,19 +198,23 @@ public class MainActivity extends MetaioSDKViewActivity implements
 
 	@Override
 	public void selected(int index) {
+		if (arActive && index != AR_VIEW) {
+			doPause();
+			doStop();
+			arActive = false;
+		}
+		main.removeAllViews();
+
 		switch (index) {
 		case Downloader.CATEGORY_AR:
-			main.removeAllViews();
 			main.addView(arInfoView);
 			break;
 
 		case Downloader.CATEGORY_DRINKS:
-			main.removeAllViews();
 			main.addView(drinksView);
 			break;
 
 		case Downloader.CATEGORY_COUPONS:
-			main.removeAllViews();
 			main.addView(couponView);
 			CIPClientApp
 					.instance()
@@ -196,8 +225,18 @@ public class MainActivity extends MetaioSDKViewActivity implements
 			break;
 
 		case Downloader.CATEGORY_CONTEST:
-			main.removeAllViews();
 			main.addView(contestView);
+			break;
+
+		case AR_VIEW:
+			arActive = true;
+			CIPClientApp
+					.instance()
+					.getEventReporter()
+					.reportEvent(EventReporter.AR_TARGET_SELECTED,
+							(String) null);
+			doStart();
+			doResume();
 			break;
 		}
 	}
@@ -237,6 +276,60 @@ public class MainActivity extends MetaioSDKViewActivity implements
 											Intent.ACTION_VIEW, Uri.parse(url)));
 								}
 							});
+		} else if (view == arImage) {
+			selected(AR_VIEW);
+		} else if (view == couponImage) {
+			AppItem appItem = CIPClientApp.instance().getDataObjects().appItem;
+			CIPClientApp
+					.instance()
+					.displayInfo(
+							"Closest location",
+							appItem.closestLocation
+									+ "("
+									+ (int) (appItem.distToLocationInMeters / 1609.34)
+									+ " mi)");
+		}
+	}
+
+	private class DrinkAdapter extends BaseAdapter {
+		private List<DrinkItem> drinks;
+		private Context context;
+
+		DrinkAdapter(Context context, List<DrinkItem> drinks) {
+			this.context = context;
+			this.drinks = drinks;
+		}
+
+		public int getCount() {
+			return this.drinks.size();
+		}
+
+		public Object getItem(int position) {
+			return position;
+		}
+
+		public long getItemId(int position) {
+			return position;
+		}
+
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View itemView;
+			if (convertView == null) {
+				itemView = LayoutInflater.from(context).inflate(
+						R.layout.my_drinks_list_item, parent, false);
+			} else {
+				itemView = convertView;
+			}
+
+			ImageView image = (ImageView) itemView.findViewById(R.id.image);
+			TextView title = (TextView) itemView.findViewById(R.id.title);
+			TextView text = (TextView) itemView.findViewById(R.id.text);
+
+			DrinkItem drink = drinks.get(position);
+			title.setText(drink.drinkTitle);
+			text.setText(drink.drinkText);
+			image.setImageBitmap(getCachedBitmap(drink.drinkImage));
+			return itemView;
 		}
 	}
 }

@@ -5,23 +5,23 @@
     android:background="@drawable/background_no_brands" >
 
     <TextView
-        android:id="@+id/info"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:layout_marginTop="15dp"
-        android:gravity="center_horizontal"
-        android:textSize="@dimen/RegularText" />
-
-    <ImageView
+        android:text="REDEEM THIS COUPON AT ANY LOCATION"
+        android:textColor="#FF25a9c1"
+        android:textSize="@dimen/LargeText" >
+    </TextView>
+    
+    <ImageButton
         android:id="@+id/image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dp" />
+        android:layout_margin="10dp"
+        android:background="@null" />
 
 </RelativeLayout>

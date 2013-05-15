@@ -8,7 +8,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:background="@null"
+        android:scaleType="fitXY"
         android:src="@drawable/enter_to_win_button1" />
 
     <TextView
@@ -17,9 +22,9 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:gravity="center"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
+        android:gravity="center"
         android:textSize="@dimen/LargeText" />
 
     <ImageButton
@@ -27,7 +32,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:background="@null"
+        android:scaleType="fitXY"
         android:src="@drawable/enter_to_win_button2" />
 
 </RelativeLayout>

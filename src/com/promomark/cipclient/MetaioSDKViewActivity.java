@@ -148,6 +148,15 @@ public abstract class MetaioSDKViewActivity extends Activity implements MetaioSu
 			final int layout = getGUILayout(); 
 			if (layout != 0)
 				mGUIView = View.inflate(this, layout, null);
+
+			// Set empty content view
+			setContentView(new FrameLayout(this));
+			
+			// If GUI view is inflated, add it
+	   		if (mGUIView != null)
+	   		{
+		   		addContentView(mGUIView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+	   		}
 		}
 		catch (Exception e)
 		{
@@ -160,12 +169,8 @@ public abstract class MetaioSDKViewActivity extends Activity implements MetaioSu
 		
 	}
 	
-	
-	@Override
-	protected void onStart() 
+	protected void doStart() 
 	{
-		super.onStart();
-		
 		try 
 		{
 			mSurfaceView = null;
@@ -173,8 +178,6 @@ public abstract class MetaioSDKViewActivity extends Activity implements MetaioSu
   
 			if (metaioSDK != null)
 			{
-				// Set empty content view
-				setContentView(new FrameLayout(this));
 				
 				// now activate the back facing camera
 				final int cameraIndex = SystemInfo.getCameraIndex(CameraInfo.CAMERA_FACING_BACK);
@@ -193,14 +196,11 @@ public abstract class MetaioSDKViewActivity extends Activity implements MetaioSu
 				FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 				addContentView(mSurfaceView, params);
 				mSurfaceView.setZOrderMediaOverlay(true);
-				
-				
 			}
 			
 			// If GUI view is inflated, add it
 	   		if (mGUIView != null)
 	   		{
-		   		addContentView(mGUIView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		   		mGUIView.bringToFront();
 	   		}
 	  
@@ -210,10 +210,8 @@ public abstract class MetaioSDKViewActivity extends Activity implements MetaioSu
 
 	}
 
-	@Override
-	protected void onPause() 
+	protected void doPause() 
 	{
-		super.onPause();
 		MetaioDebug.log("MetaioSDKViewActivity.onPause()");
 
 		if (mWakeLock != null)
@@ -228,10 +226,8 @@ public abstract class MetaioSDKViewActivity extends Activity implements MetaioSu
 		
 	}
 
-	@Override
-	protected void onResume() 
+	protected void doResume() 
 	{
-		super.onResume();
 		MetaioDebug.log("MetaioSDKViewActivity.onResume()");
 		
 		if (mWakeLock != null)
@@ -251,14 +247,7 @@ public abstract class MetaioSDKViewActivity extends Activity implements MetaioSu
 	protected void onStop() 
 	{
 		super.onStop();
-		
 		MetaioDebug.log("MetaioSDKViewActivity.onStop()");
-		
-		if (metaioSDK != null)
-		{
-			// Disable the camera
-			metaioSDK.stopCamera();
-		}
 		
 		if (mSurfaceView != null)
 		{
@@ -271,6 +260,16 @@ public abstract class MetaioSDKViewActivity extends Activity implements MetaioSu
 		System.gc();
 		
 		
+	} 
+
+	protected void doStop() 
+	{
+		
+		if (metaioSDK != null)
+		{
+			// Disable the camera
+			metaioSDK.stopCamera();
+		}
 	} 
 
 	@Override

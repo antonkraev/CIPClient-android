@@ -1,15 +1,9 @@
-FINISH code:
-- (void)imageTappedAR:(UIImage *)image
-{
-    [[self arInfoView] setHidden: YES];
-    [[self arView] setHidden: NO];
-    [[[self getAppDelegate] eventReporter] reportEvent:AR_TARGET_SELECTED withData:nil];
-}
+HIGH:
+1) start/stop AR properly (remove ghosting when stopped)
+3) 800x480 reduce images - use % of screen height - hdpi - reduce 25% (AR, coupon, contest text)
 
-TODO:
-1) most images have some semi-transparent drop shadow around them, it was not visible on iOS but visible on android. This might need to be fixed by Asya
-2) AR view is temporarily disabled
-3) no drinks list
-4) need to decrease brands background alpha to 0.5
-5) battery usage while AR is not visible
-6) not tested on 800x480 - simulator doesn't work for me
+LOW:
+1) on 2.3.3, splash copyright is not centered???
+2) tab is not preserved on suspend/resume
+3) too many "animation started" events
+4) W/OpenGLRenderer(23637): Bitmap too large to be uploaded into a texture (1280x2272, max=2048x2048)
