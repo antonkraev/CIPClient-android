@@ -18,7 +18,7 @@ public class ButtonBar implements OnClickListener {
 		void selected(int index);
 	}
 	
-	public ButtonBar(ViewGroup layout, OnSelectionChanged listener) {
+	public ButtonBar(ViewGroup layout, OnSelectionChanged listener, int selected, boolean enabled) {
 		this.listener = listener;
 		
 		buttons = new ArrayList<ImageButton>();
@@ -28,17 +28,17 @@ public class ButtonBar implements OnClickListener {
 			ViewGroup child = (ViewGroup) layout.getChildAt(i);
 			
 			ImageButton button = (ImageButton) child.getChildAt(0);
-			button.setEnabled(false);
+			button.setEnabled(enabled);
 			button.setOnClickListener(this);
 			buttons.add(button);
 			
 			ImageButton buttonSelected = (ImageButton) child.getChildAt(1);
-			buttonSelected.setEnabled(false);
+			buttonSelected.setEnabled(enabled);
 			buttonSelected.setOnClickListener(this);
 			buttonsSelected.add(buttonSelected);
 		}
 		
-		setSelected(selected = 0);
+		setSelected(selected);
 	}
 	
 	public void setEnabled(int index, boolean enabled) {

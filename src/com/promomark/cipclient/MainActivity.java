@@ -60,9 +60,17 @@ public class MainActivity extends MetaioSDKViewActivity implements
 	@Override
 	protected void onResume() {
 		super.onResume();
-		buttonBar = new ButtonBar((ViewGroup) findViewById(R.id.buttonbar),
-				this);
+
+		initControls(0, false);
+		
 		CIPClientApp.instance().setCurrentActivity(this);
+		
+		selected(Downloader.CATEGORY_AR);
+	}
+
+	private void initControls(int selected, boolean enabled) {
+		buttonBar = new ButtonBar((ViewGroup) findViewById(R.id.buttonbar),
+				this, selected, enabled);
 		info = (ImageButton) findViewById(R.id.info);
 		main = (FrameLayout) findViewById(R.id.main);
 		info.setOnClickListener(this);
@@ -72,8 +80,6 @@ public class MainActivity extends MetaioSDKViewActivity implements
 		initDrinksView(inflater.inflate(R.layout.view_drinks, null));
 		initCouponView(inflater.inflate(R.layout.view_coupon, null));
 		initContestView(inflater.inflate(R.layout.view_contest, null));
-
-		selected(Downloader.CATEGORY_AR);
 	}
 
 	private void initArInfoView(View view) {
@@ -206,6 +212,8 @@ public class MainActivity extends MetaioSDKViewActivity implements
 		if (arActive && index != AR_VIEW) {
 			doPause();
 			doStop();
+			createViews();
+			initControls(index, true);
 			arActive = false;
 		}
 		main.removeAllViews();
