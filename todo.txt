@@ -1,9 +1,7 @@
 HIGH:
 1) start/stop AR properly (remove ghosting when stopped)
-3) 800x480 reduce images - use % of screen height - hdpi - reduce 25% (AR, coupon, contest text)
 
 LOW:
-1) on 2.3.3, splash copyright is not centered???
 2) tab is not preserved on suspend/resume
 3) too many "animation started" events
 4) W/OpenGLRenderer(23637): Bitmap too large to be uploaded into a texture (1280x2272, max=2048x2048)

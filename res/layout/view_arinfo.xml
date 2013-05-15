@@ -13,7 +13,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="@dimen/ARPadding"
         android:gravity="center_horizontal"
         android:textSize="@dimen/LargeText" />
 
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="30dp"
+        android:layout_marginBottom="@dimen/ARPadding"
         android:background="@null" />
 
 </RelativeLayout>

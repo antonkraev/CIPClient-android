@@ -88,15 +88,25 @@ public class MainActivity extends MetaioSDKViewActivity implements
 		info.setText(data.arItem.targetText);
 
 		arImage = (ImageButton) arInfoView.findViewById(R.id.image);
-		arImage.setImageBitmap(getCachedBitmap(data.arItem.displayTargetImage));
+		arImage.setImageBitmap(getCachedBitmap(data.arItem.displayTargetImage, true));
 		arImage.setOnClickListener(this);
 	}
 
-	private Bitmap getCachedBitmap(String filename) {
+	private Bitmap getCachedBitmap(String filename, boolean scale) {
 		String imgPath = getExternalFilesDir(null) + File.separator + filename;
 		BitmapFactory.Options options = new BitmapFactory.Options();
-		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-		return BitmapFactory.decodeFile(imgPath, options);
+	    options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+		Bitmap res = BitmapFactory.decodeFile(imgPath, options);	    
+	    
+    	float density = getResources().getDisplayMetrics().density;
+	    if (scale && density != 2.0) {
+	    	//2.0 is the density of our stock images
+	    	int imageWidth = (int) (res.getWidth() * density / 2.0);
+	    	int imageHeight = (int) (res.getHeight() * density / 2.0);
+	    	res = Bitmap.createScaledBitmap(res, imageWidth, imageHeight, false);
+	    }
+	    
+	    return res;
 	}
 
 	private void initDrinksView(View view) {
@@ -113,13 +123,8 @@ public class MainActivity extends MetaioSDKViewActivity implements
 		this.couponView = view;
 		DataObjects data = CIPClientApp.instance().getDataObjects();
 
-		String imgPath = getExternalFilesDir(null) + File.separator
-				+ data.couponItem.image;
 		couponImage = (ImageButton) couponView.findViewById(R.id.image);
-		BitmapFactory.Options options = new BitmapFactory.Options();
-		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-		Bitmap bitmap = BitmapFactory.decodeFile(imgPath, options);
-		couponImage.setImageBitmap(bitmap);
+		couponImage.setImageBitmap(getCachedBitmap(data.couponItem.image, true));
 		couponImage.setOnClickListener(this);
 	}
 
@@ -328,7 +333,7 @@ public class MainActivity extends MetaioSDKViewActivity implements
 			DrinkItem drink = drinks.get(position);
 			title.setText(drink.drinkTitle);
 			text.setText(drink.drinkText);
-			image.setImageBitmap(getCachedBitmap(drink.drinkImage));
+			image.setImageBitmap(getCachedBitmap(drink.drinkImage, false));
 			return itemView;
 		}
 	}
