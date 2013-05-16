@@ -94,7 +94,7 @@ public class CIPClientApp extends Application implements FinishListener {
 		myMsg.setText(msg);
 		myMsg.setGravity(Gravity.CENTER_HORIZONTAL);
 		myMsg.setTextSize(17);
-		myMsg.setTextColor(getResources().getColor(android.R.color.black));
+		myMsg.setTextColor(0xFF7F7F7F);
 		myMsg.setPadding(20, 20, 20, 20);
 
 		current.runOnUiThread(new Runnable() {

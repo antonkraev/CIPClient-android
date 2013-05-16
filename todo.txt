@@ -1,3 +1,5 @@
+keystore password: "cfour1300!" / key password: "cfour1300"
+
 LOW:
 2) tab is not preserved on suspend/resume
 3) too many "animation started" events
