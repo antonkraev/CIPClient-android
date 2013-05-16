@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.promomark.cipclient"
-    android:versionCode="1"
-    android:versionName="1.0.1" >
+    android:versionCode="2"
+    android:versionName="1.0.2" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -27,12 +27,10 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.promomark.cipclient.MainActivity"
-            android:label="@string/app_name"
             android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name="com.promomark.cipclient.SplashActivity"
-            android:label="CIP"
             android:noHistory="true"
             android:screenOrientation="portrait" >
             <intent-filter>

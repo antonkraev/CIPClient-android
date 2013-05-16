@@ -6,15 +6,18 @@ import java.util.List;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -55,6 +58,12 @@ public class MainActivity extends MetaioSDKViewActivity implements
 	@Override
 	protected int getGUILayout() {
 		return R.layout.activity_main;
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		super.onCreate(savedInstanceState);
 	}
 
 	@Override
@@ -264,11 +273,16 @@ public class MainActivity extends MetaioSDKViewActivity implements
 	@Override
 	public void onClick(View view) {
 		if (view == info) {
+			String version = "1.0";
+			try {
+				version = getPackageManager().getPackageInfo(getPackageName(), 0 ).versionName;
+			} catch (NameNotFoundException e) {
+			}
 			CIPClientApp
 					.instance()
 					.displayInfo(
 							"About",
-							"This Paradise road-trip powered by Promomark. Version 1.0.1\n\n"
+							"This Paradise road-trip powered by Promomark. Version " + version + "\n\n"
 									+ "Drink Responsibly.\nDrive Responsibly.\n©2013 Cheeseburger in Paradise.");
 		} else if (view == enter1 || view == enter2) {
 			CIPClientApp
