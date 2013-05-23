@@ -1,5 +1,7 @@
 keystore password: "cfour1300!" / key password: "cfour1300"
 
+new feature: different sensitivity on lock/track (0.2 vs 0.5)
+
 LOW:
 2) tab is not preserved on suspend/resume
 3) too many "animation started" events

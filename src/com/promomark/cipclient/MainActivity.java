@@ -37,7 +37,7 @@ import com.promomark.cipclient.DataObjects.AppItem;
 import com.promomark.cipclient.DataObjects.DrinkItem;
 
 public class MainActivity extends MetaioSDKViewActivity implements
-		ButtonBar.OnSelectionChanged, OnClickListener {
+		ButtonBar.OnSelectionChanged, OnClickListener, DialogInterface.OnClickListener {
 
 	private IGeometry mModel;
 	private ButtonBar buttonBar;
@@ -71,9 +71,9 @@ public class MainActivity extends MetaioSDKViewActivity implements
 		super.onResume();
 
 		initControls(0, false);
-		
+
 		CIPClientApp.instance().setCurrentActivity(this);
-		
+
 		selected(Downloader.CATEGORY_AR);
 	}
 
@@ -103,28 +103,30 @@ public class MainActivity extends MetaioSDKViewActivity implements
 		info.setText(data.arItem.targetText);
 
 		arImage = (ImageButton) arInfoView.findViewById(R.id.image);
-		arImage.setImageBitmap(getCachedBitmap(data.arItem.displayTargetImage, true));
+		arImage.setImageBitmap(getCachedBitmap(data.arItem.displayTargetImage,
+				true));
 		arImage.setOnClickListener(this);
 	}
 
 	private Bitmap getCachedBitmap(String filename, boolean scale) {
 		String imgPath = getExternalFilesDir(null) + File.separator + filename;
 		BitmapFactory.Options options = new BitmapFactory.Options();
-	    options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-		Bitmap res = BitmapFactory.decodeFile(imgPath, options);	    
-	    
-    	float density = getResources().getDisplayMetrics().density;
-    	boolean isCoupon = filename.contains("coupon");
-    	float sourceDensityX = isCoupon? 1.7f: 2.0f;
-    	float sourceDensityY = isCoupon? 1.9f: 2.0f;
-	    if (scale && density != sourceDensityX) {
-	    	//2.0 is the density of our stock images
-	    	int imageWidth = (int) (res.getWidth() * density / sourceDensityX);
-	    	int imageHeight = (int) (res.getHeight() * density / sourceDensityY);
-	    	res = Bitmap.createScaledBitmap(res, imageWidth, imageHeight, false);
-	    }
-	    
-	    return res;
+		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+		Bitmap res = BitmapFactory.decodeFile(imgPath, options);
+
+		float density = getResources().getDisplayMetrics().density;
+		boolean isCoupon = filename.contains("coupon");
+		float sourceDensityX = isCoupon ? 1.7f : 2.0f;
+		float sourceDensityY = isCoupon ? 1.9f : 2.0f;
+		if (scale && density != sourceDensityX) {
+			// 2.0 is the density of our stock images
+			int imageWidth = (int) (res.getWidth() * density / sourceDensityX);
+			int imageHeight = (int) (res.getHeight() * density / sourceDensityY);
+			res = Bitmap
+					.createScaledBitmap(res, imageWidth, imageHeight, false);
+		}
+
+		return res;
 	}
 
 	private void initDrinksView(View view) {
@@ -142,7 +144,8 @@ public class MainActivity extends MetaioSDKViewActivity implements
 		DataObjects data = CIPClientApp.instance().getDataObjects();
 
 		couponImage = (ImageButton) couponView.findViewById(R.id.image);
-		couponImage.setImageBitmap(getCachedBitmap(data.couponItem.image, true));
+		couponImage
+				.setImageBitmap(getCachedBitmap(data.couponItem.image, true));
 		couponImage.setOnClickListener(this);
 	}
 
@@ -275,15 +278,20 @@ public class MainActivity extends MetaioSDKViewActivity implements
 		if (view == info) {
 			String version = "1.0";
 			try {
-				version = getPackageManager().getPackageInfo(getPackageName(), 0 ).versionName;
+				version = getPackageManager().getPackageInfo(getPackageName(),
+						0).versionName;
 			} catch (NameNotFoundException e) {
 			}
 			CIPClientApp
 					.instance()
-					.displayInfo(
+					.openAlert(
 							"About",
-							"This Paradise road-trip powered by Promomark. Version " + version + "\n\n"
-									+ "Drink Responsibly.\nDrive Responsibly.\n©2013 Cheeseburger in Paradise.");
+							"This Paradise road-trip powered by Promomark. Version "
+									+ version
+									+ "\n\n"
+									+ "Drink Responsibly.\nDrive Responsibly.\n©2013 Cheeseburger in Paradise.",
+							android.R.drawable.ic_dialog_info, "OK", null,
+							"Contest Rules", this);
 		} else if (view == enter1 || view == enter2) {
 			CIPClientApp
 					.instance()
@@ -310,14 +318,11 @@ public class MainActivity extends MetaioSDKViewActivity implements
 			selected(AR_VIEW);
 		} else if (view == couponImage) {
 			AppItem appItem = CIPClientApp.instance().getDataObjects().appItem;
-			CIPClientApp
-					.instance()
-					.displayInfo(
-							"Closest location",
-							appItem.closestLocation
-									+ "("
-									+ (int) (appItem.distToLocationInMeters / 1609.34)
-									+ " mi)");
+			CIPClientApp.instance().displayInfo(
+					"Closest location",
+					appItem.closestLocation + " ("
+							+ (int) (appItem.distToLocationInMeters / 1609.34)
+							+ " mi)");
 		}
 	}
 
@@ -361,5 +366,12 @@ public class MainActivity extends MetaioSDKViewActivity implements
 			image.setImageBitmap(getCachedBitmap(drink.drinkImage, false));
 			return itemView;
 		}
+	}
+
+	@Override
+	public void onClick(DialogInterface dialog, int which) {
+		String url = "http://www.cheeseburgerinparadise.com/Libraries/Contest-PDFs/RULES-Build-A-Burger.sflb.ashx";
+		startActivity(new Intent(
+				Intent.ACTION_VIEW, Uri.parse(url)));
 	}
 }

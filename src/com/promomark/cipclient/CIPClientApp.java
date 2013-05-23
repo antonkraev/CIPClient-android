@@ -67,29 +67,33 @@ public class CIPClientApp extends Application implements FinishListener {
 	}
 
 	public void displayFatalError(final String title, final String msg) {
-		openAlert(title, msg, android.R.drawable.ic_dialog_alert,
+		openAlert(title, msg, android.R.drawable.ic_dialog_alert, "OK",
 				new OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
 						current.finish();
 					}
-				}, null);
+				}, null, null);
 	}
 
 	public void displayInfo(final String title, final String msg) {
-		openAlert(title, msg, android.R.drawable.ic_dialog_info, null, null);
+		openAlert(title, msg, android.R.drawable.ic_dialog_info, "OK", null, null, null);
+	}
+
+	public void displayInfoWithButton(final String title, final String msg) {
+		openAlert(title, msg, android.R.drawable.ic_dialog_info, "OK", null, null, null);
 	}
 
 	public void displayOkCancel(final String title, final String msg,
 			OnClickListener listener) {
-		openAlert(title, msg, android.R.drawable.ic_dialog_alert, listener, new OnClickListener() {
+		openAlert(title, msg, android.R.drawable.ic_dialog_alert, "OK", listener, "Cancel", new OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				//this is cancel listener to enable cancel button, does nothing
 			}
 		});
 	}
 
-	private void openAlert(final String title, final String msg, int icon,
-			final OnClickListener positive, final OnClickListener negative) {
+	public void openAlert(final String title, final String msg, int icon,
+			final String positiveTitle, final OnClickListener positive, final String negativeTitle, final OnClickListener negative) {
 		final TextView myMsg = new TextView(this);
 		myMsg.setText(msg);
 		myMsg.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -101,9 +105,9 @@ public class CIPClientApp extends Application implements FinishListener {
 			public void run() {
 				AlertDialog.Builder builder = new AlertDialog.Builder(current).setTitle(title)
 						.setIcon(android.R.drawable.ic_dialog_info)
-						.setPositiveButton("OK", positive).setView(myMsg);
+						.setPositiveButton(positiveTitle, positive).setView(myMsg);
 				if (negative != null) {
-					builder.setNegativeButton("Cancel", negative);
+					builder.setNegativeButton(negativeTitle, negative);
 				}
 				builder.show();
 			}

@@ -10,7 +10,7 @@
         android:layout_margin="10dp"
         android:gravity="center"
         android:layout_alignParentTop="true"
-        android:text="REDEEM THIS COUPON AT ANY LOCATION"
+        android:text="TAP THE COUPON FOR CLOSEST LOCATION"
         android:textColor="#FF25a9c1"
         android:textSize="@dimen/LargeText" >
     </TextView>
