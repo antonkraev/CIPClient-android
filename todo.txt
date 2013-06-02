@@ -1,5 +1,7 @@
 keystore password: "cfour1300!" / key password: "cfour1300"
 
+cannot resume main activity when downloads are not done - images may not be done yet 
+
 new feature: different sensitivity on lock/track (0.2 vs 0.5)
 
 LOW:
