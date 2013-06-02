@@ -162,7 +162,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:src="@drawable/contest"
-                android:text="Burger Up" />
+                android:text="Contest" />
         </LinearLayout>
     </LinearLayout>
 
