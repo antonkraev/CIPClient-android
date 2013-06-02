@@ -87,7 +87,7 @@
 						for each "COS" if it is defined there. 
 						This parameter is for expert usage only. In general it 
 						is advised to leave the value unchanged. -->
-				<SimilarityThreshold>0.3<SimilarityThreshold>
+				<SimilarityThreshold>0.3</SimilarityThreshold>
 					
 			</Parameters>
 
